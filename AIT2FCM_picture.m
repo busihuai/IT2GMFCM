@@ -8,26 +8,11 @@ X = double(X);
 rng('default');%生成随机数
 [m, n] = size(X);
 
-load('D:\myprogram\FCM\FCM_my\paper2\testresult\N44.mat')
-label_real = label;
-label = [];
 
 c = 3; max_num = 200;iter = 0;
 N = m*n;
 mc = 2;
 %N为样本个数 p为维数
-
-%%
-% U = randn(N, k);%P为 N行k列
-% U = U./(sum(U, 2)*ones(1, k)); %sum(P,2)求P每一行的和
-%%
-l=10;
-nmi = zeros(l,1);
-ari = zeros(l,1);
-hi = zeros(l,1);
-dbi = zeros(l,1);
-sc = zeros(l,1);
-chi = zeros(l,1);
 
 for l = 1:1
     
@@ -98,7 +83,6 @@ for l = 1:1
             end
         end
         
-        % 算隶属度
         for x=3:m-2
             for y=3:n-2
                 for k=1:c
@@ -142,9 +126,7 @@ for l = 1:1
         
         Uup=reshape(u_up,m,n,c);
         Udown=reshape(u_down,m,n,c);
-        %     [U,V] = compute_v(m,n,c,V,X,reshape(Uup,m,n,c),reshape(Udown,m,n,c));
-        %     V = V';
-        %%
+
         xx=zeros(c,2);
         yy=zeros(c,2);
         u_new_R=zeros(m,n,c);
@@ -242,79 +224,22 @@ for l = 1:1
         V = (V_L+V_R)/2;
         U = (u_new_L+u_new_R)./2;
         
-        
-        %     t3 = (dist./sum(dist,2));
-        %
-        %     Uup(find(t3<1/3)) = U1(find(t3<1/3)); %#ok<FNDSB>
-        %     Uup(find(t3>=1/3)) = U2(find(t3>=1/3)); %#ok<FNDSB>
-        %
-        %
-        %     Udown(find(t3<1/3)) = U2(find(t3<1/3)); %#ok<FNDSB>
-        %     Udown(find(t3>=1/3)) = U1(find(t3>=1/3)); %#ok<FNDSB>
-        
-        %%
         disti = sum((V1-V).^2);
         if disti < 1e-6
             break;
         end
-        %         J_cur = sum(sum((reshape(U.^mc.*dt,m*n,c))))/N;
-        %         J = [J J_cur];
-        %         fprintf('#iteration: %03d, objective function: %f\n, disti: %f\n', iter, J_cur, disti);
-        %         J_prev = J_cur;
-        
+
         fprintf('#iteration: %03d, disti: %f\n', iter, disti);
         
     end
     
-    %% 画图
     [~, label] = max(reshape(U,m*n,c), [], 2);
-    
-    A = label;
-    B = label_real;
-    NMI  = compute_nmi (A, B);
-    [ARI, RI, MI, ~]=RandIndex(label',label_real);
-    [HI,~,~] = compute_f(label,label_real);
-    DBI = evalclusters(reshape(X,m*n,1),label,'DaviesBouldin');
-    DBI =DBI.CriterionValues;
-    SC = Eva_Entropy(label,reshape(X,m*n,1),1);
-    CHI = evalclusters(reshape(X,m*n,1),label,'CalinskiHarabasz');
-    CHI =CHI.CriterionValues;
-    nmi(l) = NMI;
-    ari(l) = ARI;
-    hi(l) = HI;
-    dbi(l) = DBI;
-    sc(l) = SC;
-    chi(l) = CHI;
 end
-nmi = getnum(nmi);
-ari = getnum(ari);
-hi = getnum(hi);
-dbi = getnum(dbi);
-sc = getnum(sc);
-chi = getnum(chi);
-xlswrite('demo.xlsx',[nmi,ari, hi, dbi, sc,chi]);
 
 
-%%
-% U = (Uup+Udown)/2;
-% [~, label] = max(reshape(U,m*n,c), [], 2);
 
-% [V,U] = fcm(X,3);
-% figure
-% imshow(uint8(reshape(V(label, :), m, n, p)))
-
-% [fs,center_p,Num_p,center_lab] = Label_image(I,reshape(label,m,n));
-% figure
-% imshow(fs);
-%imwrite(fs,'D:\myprogram\FCM\FCM_my\paper2\testresult\AIT2FCM_0002.PNG')
-
-
-%% gray
-[~, label] = max(reshape(U,m*n,c), [], 2);
+[fs,center_p,Num_p,center_lab] = Label_image(I,reshape(label,m,n));
 figure
-label1=zeros(N,1);
-label1(label==1) = 1;
-label1(label==2) = 2;
-label1(label==3) = 3;
-imshow(reshape(uint8((label1-1)*255./(k-1)),m,n));
-% imwrite(reshape(uint8((label1-1)*255./(k-1)),m,n),'D:\myprogram\FCM\FCM_my\paper2\testresult\AIT2FCM_N44.PNG')
+imshow(fs);
+
+
