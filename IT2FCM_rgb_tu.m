@@ -14,16 +14,10 @@ for l = 1:1
     
     U = abs(randn(m, c));%P为 N行k列
     U = U./(sum(U, 2)*ones(1, c)); %sum(P,2)求P每一行的和
-%     V = zeros(c, n);%P为 N行k列
-%     for i =1:c
-%         fd = find(label_real == i);
-%         if isempty(fd)
-%             break;
-%         end
-%         V(i,:) = X( randi(numel(fd),1) ,:);
-%     end
+    V = abs(rand(c,p));%P为 N行k列
+    V = V.*255;
     
-    [V,U] = fcm(X,c);
+
     
     J_prev = inf; J = [];
     
@@ -44,13 +38,8 @@ for l = 1:1
         Udown = min(U1,U2);
         
         t3 = ((Uup+Udown)./2).^b3; %uij(t+1)的m次方
-        V = (X'*t3)'./(sum(t3)'*ones(1, p));%V(0)
-        
-        %     Uup=reshape(Uup,m,n,c);
-        %     Udown=reshape(Udown,m,n,c);
-        %     [U,V] = compute_v(m,n,c,V,X,reshape(Uup,m,n,c),reshape(Udown,m,n,c));
-        %     V = V';
-        %% 降维
+        V = (X'*t3)'./(sum(t3)'*ones(1, p));
+
         xx=zeros(c,p);
         yy=zeros(c,p);
         u_new_R=zeros(N,p);
@@ -160,6 +149,6 @@ end
 [~, label] = max(U, [], 2);
 figure
 imshow(uint8(reshape(V(label, :), m, n, p)))
-imwrite(uint8(reshape(V(label, :), m, n, p)),'D:\myprogram\FCM\FCM_my\paper2\testresult\IT2FCM_baseballdiamond03.PNG')
+
 
 
