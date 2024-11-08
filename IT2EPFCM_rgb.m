@@ -1,6 +1,3 @@
-% function [image,kk5,label]=IT2EPFCM(img,c)
-
-
 clc;clear all;
 
 img1 = imread('10.jpg');
@@ -47,15 +44,12 @@ mc= 0.5.*(mc1+mc2);
 % [t, center_t ]=pcm11(m,n,c,r,v,Data,nc,u);     %使用pcm初始化
 % u = u';
 
-center_f = [78	86	0;
-136	161	215;
-113	117	120];
 
-%     rand('seed',sum(100*clock))
-%     for ii =1:c
-%         fd = floor(abs(rand(c, 1))*m*n);
-%         center_f(ii,:) = Data(fd(ii),:) ;
-%     end
+     rand('seed',sum(100*clock))
+     for ii =1:c
+         fd = floor(abs(rand(c, 1))*m*n);
+         center_f(ii,:) = Data(fd(ii),:) ;
+     end
 
 
 u = abs(rand(N, c));%P为 N行k列
@@ -190,11 +184,5 @@ figure
 imshow(fs)
 imwrite(fs,'D:\myprogram\FCM\FCM_my\paper4\IT2EPFCM_10.PNG')
 
-% s=imread('result_t2bs\0-理想图.png');
-% % s=rgb2gray(s);
-% [acc,~,~,SA,~,mIoU]=index_text(double(s),f7,c);
-% fprintf('%.4f\n',acc);%
-% fprintf('%.4f\n',SA);%分割精度
-% fprintf('%.4f\n',mIoU);%平均交互比
-% fprintf('*****\n')
+
 
