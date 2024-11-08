@@ -1,36 +1,20 @@
-%function[MIhat,AC,kk4,tt]=IT2PFCM(n,D,c,v1,data,data0,gnd)
 clc
 clear all
 close all
-
-%%
-
 
 I = imread('G_28.jpg');
 [m, n ,~] = size(I);
 X = im2gray(I);
 X = double(X);
 rng('default');%生成随机数
-load('D:\myprogram\FCM\FCM_my\paper2\testresult\医学\G28.mat')
-label_real = label;
-label = [];
-% data = importdata('Datasets_all30\iris.txt');%K=1.2
-% data0 = importdata('Datasets_all30\iris_label.txt');
 
 
 %%
 c=3;
 X = reshape(X,m*n,1);
 [N,D]=size(X);
-
 iter = 0;
-l=10;
-nmi = zeros(l,1);
-ari = zeros(l,1);
-hi = zeros(l,1);
-dbi = zeros(l,1);
-sc = zeros(l,1);
-chi = zeros(l,1);
+
 
 for ll = 1:1
     
@@ -59,12 +43,10 @@ for ll = 1:1
 %             end
 %             V0(i,:) = X( randi(numel(fd),1) ,:);
 %         end
-
-%         V0 = abs(rand(c, D));%P为 N行k列
-%         V0 = V0*255; %sum(P,2)求P每一行的和
-    
-     [V0,U0]=fcm(X,c);
-    
+    U0 = abs(randn(N, c));
+    U0 = U./(sum(U, 2));
+    V0 = abs(rand(c, D));%P为 N行k列
+    V0 = V0*255; %sum(P,2)求P每一行的和
     
     v1=V0;
     t1_t=U0';
@@ -281,61 +263,11 @@ for ll = 1:1
         kk4=kk4+1;
     end
      disp(['运行时间:  ',num2str(etime(clock,tt))]);
-%% 计算性能函数
-
     [~, label] = max(u',[], 1);
-
-    A = label;
-    B = label_real';
-    NMI  = compute_nmi (A, B);
-    [ARI, RI, MI, ~]=RandIndex(label',label_real);
-    [HI,~,~] = compute_f(label,label_real');
-    DBI = evalclusters(reshape(X,m*n,1),label','DaviesBouldin');
-    DBI =DBI.CriterionValues;   
-%     SC = evalclusters(X,label,'gap');
-%     SC =SC.CriterionValues;
-    SC = Eva_Entropy(label,reshape(X,m*n,1),D);
-    CHI = evalclusters(reshape(X,m*n,1),label','CalinskiHarabasz');
-    CHI =CHI.CriterionValues;
-    
-    nmi(ll) = NMI;
-    ari(ll) = ARI;  
-    hi(ll) = HI;
-    dbi(ll) = DBI;
-    sc(ll) = SC;
-    chi(ll) = CHI;
     
 end
-nmi = getnum(nmi);
-ari = getnum(ari);
-hi = getnum(hi);
-dbi = getnum(dbi);
-sc = getnum(sc);
-chi = getnum(chi);
 
-%% 写入文件
-xlswrite('demo.xlsx',[nmi,ari,hi,dbi,sc,chi]);
-%% 画图
-% [~, label] = max(u, [], 2);
-
-
-% [V,U] = fcm(X,3);
-% figure
-% imshow(uint8(reshape(V(label, :), m, n, p)))
-
-% [fs,center_p,Num_p,center_lab] = Label_image(I,reshape(label,m,n));
-% figure
-% imshow(fs);
-%imwrite(fs,'D:\myprogram\FCM\FCM_my\paper2\testresult\IT2PFCM_0002.PNG')
-
-%% gray
-[m, n ,p] = size(I);
-[~, label] = max(u,[], 2);
+[fs,center_p,Num_p,center_lab] = Label_image(I,reshape(label,m,n));
 figure
-label1=zeros(N,1);
-label1(label==1) = 2;
-label1(label==2) = 3;
-label1(label==3) = 1;
-imshow(reshape(uint8((label1-1)*255./(k-1)),m,n));
-% imwrite(reshape(uint8((label1-1)*255./(k-1)),m,n),'D:\myprogram\FCM\FCM_my\paper2\testresult\IT2PFCM_G28.PNG')
+imshow(fs);
 
