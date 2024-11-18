@@ -2,15 +2,18 @@ clear all;
 close all;
 clc;
 
+%% Dataset read, using the document dataset_read
 X  = textread('wine.txt');
 label_real = textread('wine_label.txt');
 
+
+%% Parameter settings
 [m, n] = size(X);
 c = max(label_real); max_num = 200;iter = 0;
 N = m*n;
 b1 = 2; b2 = 4;b3 = (b1+b2)/2;
 
-%%
+%% 
 l=10;
 nmi = zeros(l,1);
 ari = zeros(l,1);
@@ -20,11 +23,11 @@ dbi = zeros(l,1);
 sc = zeros(l,1);
 chi = zeros(l,1); 
 
-for l = 1:5
+for l = 1:10
     
-%     U = abs(randn(m, c));%PŒ™ N––k¡–
-%     U = U./(sum(U, 2)*ones(1, c)); %sum(P,2)«ÛP√ø“ª––µƒ∫Õ
-    V = zeros(c, n);%PŒ™ N––k¡–
+    U = abs(randn(m, c));
+    U = U./(sum(U, 2)*ones(1, c)); 
+    V = zeros(c, n);
     for i =1:c
         fd = find(label_real == i);
         if isempty(fd)
@@ -33,7 +36,6 @@ for l = 1:5
         V(i,:) = X( randi(numel(fd),1) ,:);
     end
     
-      [V,U]=fcm(X,c);
     
     J_prev = inf; J = [];
     
@@ -46,34 +48,10 @@ for l = 1:5
             V1 = V;
         end
         
-%         [U11,~,~]=GMFCM_main(X,label_real,b1);
-%         [U22,~,~]=GMFCM_main(X,label_real,b2);
         
 
-         dist = abs(sum(X.*X, 2)*ones(1, c) + (sum(V.*V, 2)*ones(1, m))'-2*X*V'+eps);
+        dist = abs(sum(X.*X, 2)*ones(1, c) + (sum(V.*V, 2)*ones(1, m))'-2*X*V'+eps);
         
-        
-%         t = (dist).^(1/(b1));
-%         for j = 1:c
-%             t1 = t(:,j);
-%             if j == 1
-%                 t2 = t1;
-%             else
-%                 t2 = t2.*t1;%¿€ª˝
-%             end
-%         end
-%         U1 = (repmat(t2,1,c)).^(1/c)./t;
-%         
-%         t = (dist).^(1/(b2));
-%         for j = 1:c
-%             t1 = t(:,j);
-%             if j == 1
-%                 t2 = t1;
-%             else
-%                 t2 = t2.*t1;%¿€ª˝
-%             end
-%         end
-%         U2 = (repmat(t2,1,c)).^(1/c)./t;
         
         t = (dist).^(1/(b1)); 
         t1 = prod(t,2);
@@ -87,14 +65,10 @@ for l = 1:5
         Udown = min(U1,U2);
         
         t3 = (Uup.*Udown).^(1/2);
-        t3 = t3.^b3; %uij(t+1)µƒm¥Œ∑Ω
+        t3 = t3.^b3; %uij(t+1)ÁöÑmÊ¨°Êñπ
         V = (X'*t3)'./(sum(t3)');%V(0)
         
-        %         Uup=reshape(Uup,m,n,c);
-        %         Udown=reshape(Udown,m,n,c);
-        %     [U,V] = compute_v(m,n,c,V,X,reshape(Uup,m,n,c),reshape(Udown,m,n,c));
-        %     V = V';
-        %% ΩµŒ¨
+        %% ÈôçÁª¥
         xx=zeros(c,n);
         yy=zeros(c,n);
         u_new_R=zeros(m,n,c);
@@ -190,18 +164,10 @@ for l = 1:5
         U = (u_new_L1.*u_new_R1).^(1/2);
         
         
-        %     t3 = (dist./sum(dist,2));
-        %
-        %     Uup(find(t3<1/3)) = U1(find(t3<1/3)); %#ok<FNDSB>
-        %     Uup(find(t3>=1/3)) = U2(find(t3>=1/3)); %#ok<FNDSB>
-        %
-        %
-        %     Udown(find(t3<1/3)) = U2(find(t3<1/3)); %#ok<FNDSB>
-        %     Udown(find(t3>=1/3)) = U1(find(t3>=1/3)); %#ok<FNDSB>
         
         %%
         disti =  norm(V1-V, 2)^2;
-        if disti < 1e-6
+        if disti < 1e-4
             break;
         end
         J_cur = sum(sum((U.^b1).*dist))/N;
@@ -211,7 +177,7 @@ for l = 1:5
 
     end
     
-    %% ª≠Õºsw
+    %% Calculation of indexs
     [~, label] = min(dist, [], 2);
     
     A = label;
@@ -241,23 +207,13 @@ f = getnum(f);
 dbi = getnum(dbi);
 sc = getnum(sc);
 chi = getnum(chi);
-%%
+%% Write the results of the indicator calculations in an excel sheet
 xlswrite('demo.xlsx',[nmi,ari, f,dbi, sc,chi]);
 [nmi,ari, f,dbi, sc,chi]
-%% ª≠Õº
-[~, label1] = max(U',[], 1);
 
-label1(label==1) = 1;
-label1(label==2) = 3;
-label1(label==3) = 2;
-% label1(label==4) = 1;
-% label1(label==5) = 8;
-% label1(label==6) = 4;
-% label1(label==7) = 7;
-% label1(label==8) = 2;
-
-figure(5)
-gscatter(X(:,1),X(:,2),label1,'rgbcmykbrgbcmyk','o+*.xsd^v<>pho+');
+%% 
+figure(3)
+gscatter(X(:,1),X(:,2),label,'rgbcmykbrgbcmyk','o+*.xsd^v<>pho+');
 box off
 l1=legend('Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7',...
     'Class 8','Class 9','Class 10','Class 11','Class 12','Class 13','Class 14','Class 15');
@@ -267,12 +223,11 @@ set(gca,'FontSize',20,'FontName','Times New Roman','fontweight','bold');
 xlabel('Attribute 1','fontname','times new roman','fontsize',25);
 ylabel('Attribute 2','fontname','times new roman','fontsize',25);
 
-saveas(gcf,'E:\myprogram\FCM\FCM_my\paper2\testresult\IT2GMFCM_3_wine.png');
 
 % label = bestMap(data0,label1);
 % MIhat = MutualInfo(data0,label);
 % AC = length(find(gnd == label))/length(gnd);
 % disp(['IT2FPCM in the NMF space normalized mutual information:',num2str(MIhat)]);
 % disp(['IT2FPCM in the NMF space accuracy:',num2str(AC)]);
-% disp(['IT2FPCM‘À–– ±º‰:  ',num2str(etime(clock,tt))]);
-% fprintf('IT2FPCM‘À––¥Œ ˝£∫%.4f\n',t4);
+% disp(['IT2FPCMËøêË°åÊó∂Èó¥:  ',num2str(etime(clock,tt))]);
+% fprintf('IT2FPCMËøêË°åÊ¨°Êï∞Ôºö%.4f\n',t4);
